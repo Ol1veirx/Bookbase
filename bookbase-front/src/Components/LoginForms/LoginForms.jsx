@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import './LoginForms.css'
+import { useNavigate } from 'react-router-dom'
 
 function LoginForms() {
+
+   const navigate = useNavigate()
 
    const [formData, setFormData] = useState({
       email: '',
@@ -19,7 +22,7 @@ function LoginForms() {
    const handleSubmit = (e) => {
       e.preventDefault()
       console.log('Login attempt:', formData)
-
+      navigate("/books")
    }
 
    return (
@@ -57,7 +60,7 @@ function LoginForms() {
             </div>
 
             <div className="form-actions">
-               <button type="submit" className="btn-submit">
+               <button type="submit" className="btn-submit" onClick={handleSubmit}>
                   Entrar
                </button>
             </div>
