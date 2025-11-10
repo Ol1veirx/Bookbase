@@ -59,6 +59,8 @@
    font-size: 1rem;
    outline: none;
    transition: all 0.3s ease;
+   background-color: white;
+   color: black;
 }
 
 .search-input:focus {
@@ -67,7 +69,12 @@
 }
 
 .search-btn {
-   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 5px;
+
+   background-color: #4BC1D2;
    color: white;
    border: none;
    padding: 1rem 2rem;
