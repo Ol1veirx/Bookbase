@@ -13,7 +13,7 @@ function Sidebar() {
 
    const menuItems = [
       { path: '/books', label: 'Livros', icon: <TbBooks /> },
-      { path: '/favorites', label: 'Cadastrar Livro', icon: <PiBooksThin /> },
+      { path: '/register-book', label: 'Cadastrar Livro', icon: <PiBooksThin /> },
       { path: '/categories', label: 'Registrar Empréstimo', icon: <TiUserAddOutline /> },
       { path: '/settings', label: 'Configurações', icon: <CiSettings /> }
    ]
