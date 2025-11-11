@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  bookbase-api:
+    build: .
+    ports:
+      - "8002:8002"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=postgresql://bookbase_user:bookbase_password@postgres:5432/bookbase
+    volumes:
+      - ./src:/app/src
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: bookbase
+      POSTGRES_USER: bookbase_user
+      POSTGRES_PASSWORD: bookbase_password
+    ports:
+      - "9497:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bookbase_user -d bookbase"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@bookbase.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5052:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  pgadmin_data:

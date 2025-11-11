@@ -1,8 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from database import engine, Base
+import models
 
-app = FastAPI(title="Bookbase API")
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="Bookbase API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,4 +25,4 @@ def health_check():
     return {"status": "ok"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8002)
