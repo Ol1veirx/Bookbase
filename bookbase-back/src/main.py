@@ -3,7 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from database import engine, Base
 import models
+from routers import auth_router
 
+# Criar tabelas
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Bookbase API", version="1.0.0")
@@ -15,6 +17,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Incluir routers
+app.include_router(auth_router)
 
 @app.get("/")
 def read_root():

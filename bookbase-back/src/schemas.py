@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, validator
 from datetime import datetime
 from typing import Optional
 from enum import Enum
@@ -17,6 +17,20 @@ class UsuarioBase(BaseModel):
 class UsuarioCreate(UsuarioBase):
     senha: str
 
+    @validator('senha')
+    def validate_password(cls, v):
+        if len(v) < 6:
+            raise ValueError('Senha deve ter pelo menos 6 caracteres')
+        if len(v.encode('utf-8')) > 72:
+            raise ValueError('Senha muito longa. Máximo 72 bytes.')
+        return v
+
+    @validator('nome')
+    def validate_nome(cls, v):
+        if len(v.strip()) < 2:
+            raise ValueError('Nome deve ter pelo menos 2 caracteres')
+        return v.strip()
+
 class UsuarioUpdate(BaseModel):
     nome: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -29,6 +43,29 @@ class Usuario(UsuarioBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    email: Optional[str] = None
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+    @validator('new_password')
+    def validate_new_password(cls, v):
+        if len(v) < 6:
+            raise ValueError('Nova senha deve ter pelo menos 6 caracteres')
+        if len(v.encode('utf-8')) > 72:
+            raise ValueError('Nova senha muito longa. Máximo 72 bytes.')
+        return v
 
 class LivroBase(BaseModel):
     titulo: str
