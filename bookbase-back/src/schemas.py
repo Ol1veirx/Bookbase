@@ -73,9 +73,16 @@ class LivroBase(BaseModel):
     isbn: str
     ano: int
     quantidade_exemplares: int = 1
+    categoria: str
+    paginas: int
+    descricao: str
 
 class LivroCreate(LivroBase):
-    pass
+    titulo: str
+    autor: str
+    isbn: str
+    ano: int
+    quantidade_exemplares: int = 1
 
 class LivroUpdate(BaseModel):
     titulo: Optional[str] = None
@@ -83,11 +90,15 @@ class LivroUpdate(BaseModel):
     isbn: Optional[str] = None
     ano: Optional[int] = None
     quantidade_exemplares: Optional[int] = None
+    categoria: Optional[str] = None
+    paginas: Optional[int] = None
+    descricao: Optional[str] = None
 
 class Livro(LivroBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    capa: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 

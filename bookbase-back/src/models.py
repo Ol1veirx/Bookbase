@@ -32,6 +32,10 @@ class Livro(Base):
     isbn = Column(String(20), unique=True, index=True, nullable=False)
     ano = Column(Integer, nullable=False)
     quantidade_exemplares = Column(Integer, default=1, nullable=False)
+    categoria = Column(String(100), nullable=False)
+    paginas = Column(Integer, nullable=False)
+    descricao = Column(String(20), nullable=False)
+    capa = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

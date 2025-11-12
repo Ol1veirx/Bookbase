@@ -10,6 +10,7 @@ services:
       - DATABASE_URL=postgresql://bookbase_user:bookbase_password@postgres:5432/bookbase
     volumes:
       - ./src:/app/src
+      - ./uploads:/app/uploads
     restart: unless-stopped
     depends_on:
       postgres:

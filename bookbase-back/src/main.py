@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from database import engine, Base
 import models
-from routers import auth_router
+from routers import auth_router, books_router
+from config import UPLOAD_DIR
 
-# Criar tabelas
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Bookbase API", version="1.0.0")
@@ -18,8 +19,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Incluir routers
+# Criar pasta de uploads se não existir
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Servir arquivos estáticos (imagens)
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+
+# Rotas
 app.include_router(auth_router)
+app.include_router(books_router)
 
 @app.get("/")
 def read_root():
