@@ -1,20 +1,26 @@
 import { useState } from "react";
 import Sidebar from "../../Components/Sidebar/Sidebar";
+import { FaImages } from "react-icons/fa";
 import "./RegisterBookPage.css";
 
 function RegisterBookPage() {
   const [formData, setFormData] = useState({
-    title: "",
-    author: "",
+    titulo: "",
+    autor: "",
     isbn: "",
-    description: "",
-    category: "",
-    publishYear: "",
-    pages: "",
+    descricao: "",
+    categoria: "",
+    quantidade_exemplares: "",
+    ano: "",
+    paginas: "",
+    capa: null,
   });
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
+
+  const API_BASE_URL = "http://localhost:8002";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,37 +30,85 @@ function RegisterBookPage() {
     });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        capa: file,
+      });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/books", {
+      const formDataToSend = new FormData();
+
+      formDataToSend.append("titulo", formData.titulo);
+      formDataToSend.append("autor", formData.autor);
+      formDataToSend.append("isbn", formData.isbn);
+      formDataToSend.append("descricao", formData.descricao);
+      formDataToSend.append("categoria", formData.categoria);
+      formDataToSend.append("ano", formData.ano);
+      formDataToSend.append("paginas", formData.paginas);
+      formDataToSend.append("quantidade_exemplares", formData.quantidade_exemplares);
+
+      if (formData.capa) {
+        formDataToSend.append("capa", formData.capa);
+      }
+
+
+      console.log("Enviando FormData:", formDataToSend);
+
+      const token = localStorage.getItem('token')
+      console.log(token)
+
+      const response = await fetch(`${API_BASE_URL}/livros`, {
         method: "POST",
+        body: formDataToSend,
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+          "Authorization": `Bearer ${localStorage.getItem('token')}`
+        }
       });
 
+      console.log("Status:", response.status);
+      console.log("Status Text:", response.statusText);
+
+      console.log("Status da resposta:", response.status);
+
       if (response.ok) {
-        setMessage("Livro registrado com sucesso!");
+        const data = await response.json();
+        console.log("Resposta do servidor:", data);
+
+        setMessageType("success");
+        setMessage("✅ Livro registrado com sucesso!");
+
         setFormData({
-          title: "",
-          author: "",
+          titulo: "",
+          autor: "",
           isbn: "",
-          description: "",
-          category: "",
-          publishYear: "",
-          pages: "",
+          descricao: "",
+          categoria: "",
+          quantidade_exemplares: "",
+          ano: "",
+          paginas: "",
+          capa: null,
         });
+
+        const fileInput = document.getElementById("capa");
+        if (fileInput) fileInput.value = "";
       } else {
-        setMessage("Erro ao registrar o livro. Tente novamente.");
+        const errorData = await response.json();
+        setMessageType("error");
+        setMessage(`Erro ao registrar o livro: ${errorData.message || "Tente novamente."}`);
       }
     } catch (error) {
+      setMessageType("error");
       setMessage("Erro ao conectar com o servidor.");
-      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -67,16 +121,20 @@ function RegisterBookPage() {
         <div className="register-container">
           <h1>Registrar Novo Livro</h1>
 
-          {message && <div className="message">{message}</div>}
+          {message && (
+            <div className={`message ${messageType}`}>
+              {message}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="book-form">
             <div className="form-group">
-              <label htmlFor="title">Título *</label>
+              <label htmlFor="titulo">Título *</label>
               <input
                 type="text"
-                id="title"
-                name="title"
-                value={formData.title}
+                id="titulo"
+                name="titulo"
+                value={formData.titulo}
                 onChange={handleChange}
                 required
                 placeholder="Digite o título do livro"
@@ -84,12 +142,12 @@ function RegisterBookPage() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="author">Autor *</label>
+              <label htmlFor="autor">Autor *</label>
               <input
                 type="text"
-                id="author"
-                name="author"
-                value={formData.author}
+                id="autor"
+                name="autor"
+                value={formData.autor}
                 onChange={handleChange}
                 required
                 placeholder="Digite o nome do autor"
@@ -110,12 +168,12 @@ function RegisterBookPage() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="category">Categoria</label>
+                <label htmlFor="categoria">Categoria</label>
                 <input
                   type="text"
-                  id="category"
-                  name="category"
-                  value={formData.category}
+                  id="categoria"
+                  name="categoria"
+                  value={formData.categoria}
                   onChange={handleChange}
                   placeholder="Ex: Ficção, Romance"
                 />
@@ -124,24 +182,24 @@ function RegisterBookPage() {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="publishYear">Ano de Publicação</label>
+                <label htmlFor="ano">Ano de Publicação</label>
                 <input
                   type="number"
-                  id="publishYear"
-                  name="publishYear"
-                  value={formData.publishYear}
+                  id="ano"
+                  name="ano"
+                  value={formData.ano}
                   onChange={handleChange}
                   placeholder="2024"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="pages">Páginas</label>
+                <label htmlFor="paginas">Páginas</label>
                 <input
                   type="number"
-                  id="pages"
-                  name="pages"
-                  value={formData.pages}
+                  id="paginas"
+                  name="paginas"
+                  value={formData.paginas}
                   onChange={handleChange}
                   placeholder="300"
                 />
@@ -149,15 +207,50 @@ function RegisterBookPage() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="description">Descrição</label>
+              <label htmlFor="quantidade_exemplares">Quantidade de Exemplares</label>
+              <input
+                type="number"
+                id="quantidade_exemplares"
+                name="quantidade_exemplares"
+                value={formData.quantidade_exemplares}
+                onChange={handleChange}
+                placeholder="30"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="descricao">Descrição</label>
               <textarea
-                id="description"
-                name="description"
-                value={formData.description}
+                id="descricao"
+                name="descricao"
+                value={formData.descricao}
                 onChange={handleChange}
                 placeholder="Digite uma descrição do livro"
                 rows="4"
               />
+            </div>
+
+            <div className="form-group capa-full-width">
+              <label htmlFor="capa">Capa do Livro</label>
+              <div className="file-input-wrapper">
+                <input
+                  type="file"
+                  id="capa"
+                  name="capa"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="file-input"
+                />
+                <label htmlFor="capa" className="file-input-label">
+                  {formData.capa ? (
+                    <>
+                      <FaImages /> {formData.capa.name}
+                    </>
+                  ) : (
+                    "Selecionar imagem"
+                  )}
+                </label>
+              </div>
             </div>
 
             <button type="submit" disabled={loading} className="submit-btn">

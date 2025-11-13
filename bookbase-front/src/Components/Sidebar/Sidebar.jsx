@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { TbBooks } from "react-icons/tb";
 import { PiBooksThin } from "react-icons/pi";
@@ -10,6 +10,7 @@ import './Sidebar.css'
 
 function Sidebar() {
    const location = useLocation()
+   const navigate = useNavigate()
 
    const menuItems = [
       { path: '/books', label: 'Livros', icon: <TbBooks /> },
@@ -19,7 +20,8 @@ function Sidebar() {
    ]
 
    const handleLogout = () => {
-      console.log('Logout realizado')
+      localStorage.removeItem('token')
+      navigate('/')
    }
 
    return (

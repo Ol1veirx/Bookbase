@@ -8,49 +8,60 @@ function BookListPage() {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalBooks, setTotalBooks] = useState(0);
 
-  const API_BASE_URL = "http://localhost:8002"
+  const API_BASE_URL = "http://localhost:8002";
+  const ITEMS_PER_PAGE = 10;
 
-  const fetchBooks = async (query = "") => {
+  const fetchBooks = async (query = "", page = 1) => {
     try {
       setLoading(true);
       setError(null);
 
-      let url = `${API_BASE_URL}/livros`;
+      const skip = (page - 1) * ITEMS_PER_PAGE;
+      let url = `${API_BASE_URL}/livros?skip=${skip}&limit=${ITEMS_PER_PAGE}`;
 
       if (query.trim()) {
-        url += `?busca=${encodeURIComponent(query)}`;
+        url += `&busca=${encodeURIComponent(query)}`;
       }
 
       const response = await fetch(url);
-
-      console.log("Status da resposta:", response.status);
 
       if (!response.ok) {
         throw new Error(`Erro ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log("Dados recebidos:", data);
 
-      setBooks(data);
+      const booksArray = data.livros || [];
+      const total = data.total || 0;
+
+      setBooks(booksArray);
+      setTotalBooks(total);
+      setTotalPages(Math.ceil(total / ITEMS_PER_PAGE));
+      setCurrentPage(page);
     } catch (err) {
       setError(err.message);
-      console.error("Erro completo:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Buscar livros quando o componente carregar
   useEffect(() => {
-    fetchBooks();
+    fetchBooks("", 1);
   }, []);
 
-  // Função para lidar com a pesquisa
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchBooks(searchTerm);
+    fetchBooks(searchTerm, 1);
+  };
+
+  const handlePageChange = (page) => {
+    if (page > 0 && page <= totalPages) {
+      fetchBooks(searchTerm, page);
+    }
   };
 
   return (
@@ -86,12 +97,11 @@ function BookListPage() {
               </div>
             )}
 
-            {/* Erro */}
             {error && (
               <div className="error">
                 <p>Erro: {error}</p>
                 <button
-                  onClick={() => fetchBooks(searchTerm)}
+                  onClick={() => fetchBooks(searchTerm, currentPage)}
                   className="retry-btn"
                 >
                   Tentar novamente
@@ -99,7 +109,6 @@ function BookListPage() {
               </div>
             )}
 
-            {/* Lista de livros */}
             <div className="books-grid">
               {books.map((book) => (
                 <div key={book.id} className="book-card">
@@ -140,12 +149,11 @@ function BookListPage() {
                       Exemplares disponíveis: <strong>{book.quantidade_exemplares}</strong>
                     </p>
                     <div className="book-actions">
-                      <button className="btn-details">Ver Detalhes</button>
+                      <button className="btn-update">Atualizar</button>
                       <button
-                        className="btn-add"
-                        disabled={book.quantidade_exemplares === 0}
+                        className="btn-delete"
                       >
-                        {book.quantidade_exemplares > 0 ? "Adicionar à Lista" : "Indisponível"}
+                        Excluir
                       </button>
                     </div>
                   </div>
@@ -160,6 +168,33 @@ function BookListPage() {
                     ? `Nenhum livro encontrado para "${searchTerm}"`
                     : "Nenhum livro disponível"}
                 </p>
+              </div>
+            )}
+
+            {totalPages > 0 && (
+              <div className="pagination">
+                <button
+                  className="pagination-btn"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  ← Anterior
+                </button>
+
+                <div className="pagination-info">
+                  Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+                  {totalBooks > 0 && (
+                    <span> ({totalBooks} livros no total)</span>
+                  )}
+                </div>
+
+                <button
+                  className="pagination-btn"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Próxima →
+                </button>
               </div>
             )}
           </div>
