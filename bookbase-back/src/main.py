@@ -19,10 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Criar pasta de uploads se não existir
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# Servir arquivos estáticos (imagens)
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 # Rotas

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict, validator
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from enum import Enum
 
 class UserRole(str, Enum):
@@ -77,6 +77,12 @@ class LivroBase(BaseModel):
     paginas: int
     descricao: str
 
+class LivrosPaginados(BaseModel):
+    livros: List["Livro"]
+    total: int
+    skip: int
+    limit: int
+
 class LivroCreate(LivroBase):
     titulo: str
     autor: str
@@ -137,3 +143,5 @@ class EmprestimoSimple(EmprestimoBase):
     status: str
     created_at: datetime
     updated_at: Optional[datetime] = None
+
+    LivrosPaginados.model_rebuild()

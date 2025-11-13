@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from dependencies import get_current_user, require_bibliotecario
 from file_handler import save_upload_file, delete_upload_file
-from schemas import Livro, LivroCreate, LivroUpdate
+from schemas import Livro, LivroCreate, LivroUpdate, LivrosPaginados
 from config import UPLOAD_DIR
 import models
 import json
@@ -53,7 +53,7 @@ async def create_livro(
 
     return db_livro
 
-@router.get("/", response_model=list[Livro])
+@router.get("/", response_model=LivrosPaginados)
 def list_livros(
     skip: int = 0,
     limit: int = 10,
@@ -61,7 +61,14 @@ def list_livros(
 ):
     """Listar todos os livros"""
     livros = db.query(models.Livro).offset(skip).limit(limit).all()
-    return livros
+    total = db.query(models.Livro).count()
+
+    return {
+        "livros": livros,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
 
 @router.get("/{livro_id}", response_model=Livro)
 def get_livro(

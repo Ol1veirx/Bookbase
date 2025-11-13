@@ -7,7 +7,7 @@ services:
       - "8002:8002"
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_URL=postgresql://bookbase_user:bookbase_password@postgres:5432/bookbase
+      - DATABASE_URL=${DATABASE_URL}
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
