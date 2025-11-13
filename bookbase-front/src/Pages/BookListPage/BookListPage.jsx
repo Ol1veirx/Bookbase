@@ -11,6 +11,8 @@ function BookListPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalBooks, setTotalBooks] = useState(0);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, bookId: null, bookTitle: "" });
+  const [deleting, setDeleting] = useState(false);
 
   const API_BASE_URL = "http://localhost:8002";
   const ITEMS_PER_PAGE = 10;
@@ -61,6 +63,64 @@ function BookListPage() {
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       fetchBooks(searchTerm, page);
+    }
+  };
+
+  const openDeleteModal = (bookId, bookTitle) => {
+    setDeleteModal({ isOpen: true, bookId, bookTitle });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({ isOpen: false, bookId: null, bookTitle: "" });
+  };
+
+  const handleDeleteBook = async () => {
+    if (!deleteModal.bookId) return;
+
+    try {
+      setDeleting(true);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Token não encontrado. Faça login novamente.");
+        closeDeleteModal();
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/livros/${deleteModal.bookId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      console.log("Status da resposta:", response.status);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Livro deletado:", data);
+
+        setBooks(books.filter(book => book.id !== deleteModal.bookId));
+        setTotalBooks(totalBooks - 1);
+
+        if (books.length === 1 && currentPage > 1) {
+          fetchBooks(searchTerm, currentPage - 1);
+        } else {
+          setTotalPages(Math.ceil((totalBooks - 1) / ITEMS_PER_PAGE));
+        }
+
+        setError(null);
+        closeDeleteModal();
+      } else {
+        const errorData = await response.json();
+        console.error("Erro ao deletar:", errorData);
+        setError(`Erro ao deletar: ${errorData.detail || "Tente novamente"}`);
+      }
+    } catch (err) {
+      console.error("Erro completo:", err);
+      setError("Erro ao deletar livro");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -152,6 +212,7 @@ function BookListPage() {
                       <button className="btn-update">Atualizar</button>
                       <button
                         className="btn-delete"
+                        onClick={() => openDeleteModal(book.id, book.titulo)}
                       >
                         Excluir
                       </button>
@@ -200,6 +261,36 @@ function BookListPage() {
           </div>
         </div>
       </main>
+
+      {/* Modal de Confirmação de Delete */}
+      {deleteModal.isOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Confirmar Exclusão</h2>
+            <p>
+              Você tem certeza que deseja excluir o livro <strong>"{deleteModal.bookTitle}"</strong>?
+            </p>
+            <p className="modal-warning">Esta ação não pode ser desfeita.</p>
+
+            <div className="modal-actions">
+              <button
+                className="modal-btn modal-btn-cancel"
+                onClick={closeDeleteModal}
+                disabled={deleting}
+              >
+                Cancelar
+              </button>
+              <button
+                className="modal-btn modal-btn-delete"
+                onClick={handleDeleteBook}
+                disabled={deleting}
+              >
+                {deleting ? "Deletando..." : "Deletar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
