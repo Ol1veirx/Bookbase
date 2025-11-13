@@ -6,18 +6,21 @@ import "./BookListPage.css";
 function BookListPage() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("javascript");
+  const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
 
-  const fetchBooks = async (query = "programming") => {
+  const API_BASE_URL = "http://localhost:8002"
+
+  const fetchBooks = async (query = "") => {
     try {
       setLoading(true);
       setError(null);
 
-      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-        query
-      )}&maxResults=20`;
-      console.log("URL da requisição:", url);
+      let url = `${API_BASE_URL}/livros`;
+
+      if (query.trim()) {
+        url += `?busca=${encodeURIComponent(query)}`;
+      }
 
       const response = await fetch(url);
 
@@ -30,7 +33,7 @@ function BookListPage() {
       const data = await response.json();
       console.log("Dados recebidos:", data);
 
-      setBooks(data.items || []);
+      setBooks(data);
     } catch (err) {
       setError(err.message);
       console.error("Erro completo:", err);
@@ -39,15 +42,15 @@ function BookListPage() {
     }
   };
 
+  // Buscar livros quando o componente carregar
   useEffect(() => {
-    fetchBooks(searchTerm);
+    fetchBooks();
   }, []);
 
+  // Função para lidar com a pesquisa
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchTerm.trim()) {
-      fetchBooks(searchTerm.trim());
-    }
+    fetchBooks(searchTerm);
   };
 
   return (
@@ -55,6 +58,7 @@ function BookListPage() {
       <Sidebar />
       <main className="main-content">
         <div className="page-header">
+          <h1>Biblioteca de Livros</h1>
           <p>Explore nossa coleção de livros</p>
         </div>
 
@@ -63,7 +67,7 @@ function BookListPage() {
             <div className="search-container">
               <input
                 type="text"
-                placeholder="Pesquisar livros..."
+                placeholder="Pesquisar por título, autor ou categoria..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="search-input"
@@ -102,10 +106,11 @@ function BookListPage() {
                   <div className="book-image">
                     <img
                       src={
-                        book.volumeInfo.imageLinks?.thumbnail ||
-                        "https://via.placeholder.com/128x200?text=Sem+Imagem"
+                        book.capa
+                          ? `${API_BASE_URL}/livros/capas/${book.capa}`
+                          : "https://via.placeholder.com/128x200?text=Sem+Imagem"
                       }
-                      alt={book.volumeInfo.title || "Livro"}
+                      alt={book.titulo || "Livro"}
                       onError={(e) => {
                         e.target.src =
                           "https://via.placeholder.com/128x200?text=Sem+Imagem";
@@ -114,24 +119,34 @@ function BookListPage() {
                   </div>
                   <div className="book-info">
                     <h3 className="book-title">
-                      {book.volumeInfo.title || "Título não disponível"}
+                      {book.titulo || "Título não disponível"}
                     </h3>
                     <p className="book-authors">
-                      {book.volumeInfo.authors?.join(", ") ||
-                        "Autor desconhecido"}
+                      {book.autor || "Autor desconhecido"}
                     </p>
-                    <p className="book-published">
-                      Publicado:{" "}
-                      {book.volumeInfo.publishedDate || "Data não informada"}
+                    <p className="book-category">
+                      {book.categoria || "Categoria não informada"}
+                    </p>
+                    <p className="book-year">
+                      Publicado em: {book.ano || "Data não informada"}
+                    </p>
+                    <p className="book-pages">
+                      Páginas: {book.paginas || "Não informado"}
                     </p>
                     <p className="book-description">
-                      {book.volumeInfo.description
-                        ? `${book.volumeInfo.description.slice(0, 150)}...`
-                        : "Descrição não disponível"}
+                      {book.descricao?.trim() || "Descrição não disponível"}
+                    </p>
+                    <p className="book-copies">
+                      Exemplares disponíveis: <strong>{book.quantidade_exemplares}</strong>
                     </p>
                     <div className="book-actions">
                       <button className="btn-details">Ver Detalhes</button>
-                      <button className="btn-add">Adicionar à Lista</button>
+                      <button
+                        className="btn-add"
+                        disabled={book.quantidade_exemplares === 0}
+                      >
+                        {book.quantidade_exemplares > 0 ? "Adicionar à Lista" : "Indisponível"}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -140,7 +155,11 @@ function BookListPage() {
 
             {books.length === 0 && !loading && !error && (
               <div className="no-books">
-                <p>Nenhum livro encontrado para "{searchTerm}"</p>
+                <p>
+                  {searchTerm
+                    ? `Nenhum livro encontrado para "${searchTerm}"`
+                    : "Nenhum livro disponível"}
+                </p>
               </div>
             )}
           </div>
