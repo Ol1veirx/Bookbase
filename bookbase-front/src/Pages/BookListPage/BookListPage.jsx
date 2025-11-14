@@ -262,7 +262,6 @@ function BookListPage() {
         </div>
       </main>
 
-      {/* Modal de Confirmação de Delete */}
       {deleteModal.isOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
