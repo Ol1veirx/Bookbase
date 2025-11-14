@@ -17,7 +17,6 @@ function LoanBookPage() {
     data_devolucao_prevista: ""
   });
 
-  // Estados para busca
   const [userSearch, setUserSearch] = useState("");
   const [bookSearch, setBookSearch] = useState("");
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -25,7 +24,6 @@ function LoanBookPage() {
 
   const API_BASE_URL = "http://localhost:8002";
 
-  // Buscar usuários
   const fetchUsers = async (search = "") => {
     try {
       const token = localStorage.getItem("token");
@@ -50,7 +48,6 @@ function LoanBookPage() {
     }
   };
 
-  // Buscar livros disponíveis
   const fetchBooks = async (search = "") => {
     try {
       let url = `${API_BASE_URL}/livros?limit=50`;
@@ -78,39 +75,33 @@ function LoanBookPage() {
     fetchBooks();
   }, []);
 
-  // Filtrar usuários conforme busca
   const filteredUsers = users.filter(user =>
     user.nome?.toLowerCase().includes(userSearch.toLowerCase()) ||
     user.email?.toLowerCase().includes(userSearch.toLowerCase())
   );
 
-  // Filtrar livros conforme busca
   const filteredBooks = books.filter(book =>
     book.titulo?.toLowerCase().includes(bookSearch.toLowerCase()) ||
     book.autor?.toLowerCase().includes(bookSearch.toLowerCase())
   );
 
-  // Selecionar usuário
   const selectUser = (user) => {
     setFormData(prev => ({ ...prev, usuario_id: user.id }));
     setUserSearch(`${user.nome} (${user.email})`);
     setShowUserDropdown(false);
   };
 
-  // Selecionar livro
   const selectBook = (book) => {
     setFormData(prev => ({ ...prev, livro_id: book.id }));
     setBookSearch(`${book.titulo} - ${book.autor}`);
     setShowBookDropdown(false);
   };
 
-  // Handle form change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Submeter empréstimo
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -121,17 +112,16 @@ function LoanBookPage() {
 
       if (!token) {
         setMessageType("error");
-        setMessage("❌ Token não encontrado. Faça login novamente.");
+        setMessage("Token não encontrado. Faça login novamente.");
         return;
       }
 
       if (!formData.usuario_id || !formData.livro_id || !formData.data_devolucao_prevista) {
         setMessageType("error");
-        setMessage("❌ Por favor, preencha todos os campos.");
+        setMessage("Por favor, preencha todos os campos.");
         return;
       }
 
-      // Converter data para ISO string
       const dataFormatada = new Date(formData.data_devolucao_prevista).toISOString();
 
       const requestBody = {
@@ -158,9 +148,8 @@ function LoanBookPage() {
         console.log("Empréstimo criado:", data);
 
         setMessageType("success");
-        setMessage("✅ Empréstimo registrado com sucesso!");
+        setMessage("Empréstimo registrado com sucesso!");
 
-        // Limpar formulário
         setFormData({
           usuario_id: "",
           livro_id: "",
@@ -169,24 +158,22 @@ function LoanBookPage() {
         setUserSearch("");
         setBookSearch("");
 
-        // Recarregar livros para atualizar disponibilidade
         fetchBooks();
       } else {
         const errorData = await response.json();
         console.error("Erro do servidor:", errorData);
         setMessageType("error");
-        setMessage(`❌ ${errorData.detail || "Erro ao registrar empréstimo"}`);
+        setMessage(`${errorData.detail || "Erro ao registrar empréstimo"}`);
       }
     } catch (error) {
       console.error("Erro:", error);
       setMessageType("error");
-      setMessage("❌ Erro ao conectar com o servidor.");
+      setMessage("Erro ao conectar com o servidor.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Data mínima (hoje)
   const today = new Date().toISOString().split('T')[0];
 
   return (
@@ -204,7 +191,6 @@ function LoanBookPage() {
           )}
 
           <form onSubmit={handleSubmit} className="loan-form">
-            {/* Seleção de Usuário */}
             <div className="form-group">
               <label htmlFor="user-search">
                 <CiUser /> Selecionar Usuário *
@@ -248,7 +234,6 @@ function LoanBookPage() {
               </div>
             </div>
 
-            {/* Seleção de Livro */}
             <div className="form-group">
               <label htmlFor="book-search">
                 <FaBook /> Selecionar Livro *
@@ -293,7 +278,6 @@ function LoanBookPage() {
               </div>
             </div>
 
-            {/* Data de Devolução */}
             <div className="form-group">
               <label htmlFor="data_devolucao_prevista">
                 <CiCalendar /> Data de Devolução Prevista *

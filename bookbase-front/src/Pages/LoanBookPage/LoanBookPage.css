@@ -185,7 +185,6 @@
   cursor: not-allowed;
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
   .main-content {
     margin-left: 60px;

@@ -14,6 +14,14 @@ function ListLoanPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalLoans, setTotalLoans] = useState(0);
 
+  const [returnModal, setReturnModal] = useState({
+    isOpen: false,
+    loanId: null,
+    bookTitle: "",
+    userName: ""
+  });
+  const [returning, setReturning] = useState(false);
+
   const API_BASE_URL = "http://localhost:8002";
   const ITEMS_PER_PAGE = 10;
 
@@ -106,6 +114,73 @@ function ListLoanPage() {
   const handlePageChange = (page) => {
     if (page > 0 && page <= totalPages) {
       fetchLoans(searchTerm, statusFilter, page);
+    }
+  };
+
+  const openReturnModal = (loan) => {
+    setReturnModal({
+      isOpen: true,
+      loanId: loan.id,
+      bookTitle: loan.livro?.titulo || `Livro ID: ${loan.livro_id}`,
+      userName: loan.usuario?.nome || `Usuário ID: ${loan.usuario_id}`
+    });
+  };
+
+  const closeReturnModal = () => {
+    setReturnModal({
+      isOpen: false,
+      loanId: null,
+      bookTitle: "",
+      userName: ""
+    });
+  };
+
+  const handleReturnBook = async () => {
+    if (!returnModal.loanId) return;
+
+    try {
+      setReturning(true);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Token não encontrado. Faça login novamente.");
+        closeReturnModal();
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/emprestimos/${returnModal.loanId}/devolver`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      console.log("Status da resposta:", response.status);
+
+      if (response.ok) {
+        const updatedLoan = await response.json();
+        console.log("Devolução registrada:", updatedLoan);
+
+        setLoans(loans.map(loan =>
+          loan.id === returnModal.loanId
+            ? { ...loan, ...updatedLoan }
+            : loan
+        ));
+
+        setError(null);
+        closeReturnModal();
+
+      } else {
+        const errorData = await response.json();
+        console.error("Erro ao registrar devolução:", errorData);
+        setError(`Erro ao registrar devolução: ${errorData.detail || "Tente novamente"}`);
+      }
+    } catch (err) {
+      console.error("Erro completo:", err);
+      setError("Erro ao conectar com o servidor");
+    } finally {
+      setReturning(false);
     }
   };
 
@@ -272,7 +347,12 @@ function ListLoanPage() {
 
                   {loan.status === "emprestado" && (
                     <div className="loan-actions">
-                      <button className="btn-return">Registrar Devolução</button>
+                      <button
+                        className="btn-return"
+                        onClick={() => openReturnModal(loan)}
+                      >
+                        Registrar Devolução
+                      </button>
                       <button className="btn-extend">Estender Prazo</button>
                     </div>
                   )}
@@ -319,6 +399,39 @@ function ListLoanPage() {
           )}
         </div>
       </main>
+
+      {returnModal.isOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Confirmar Devolução</h2>
+            <p>
+              Você tem certeza que deseja registrar a devolução do livro{" "}
+              <strong>"{returnModal.bookTitle}"</strong> do usuário{" "}
+              <strong>{returnModal.userName}</strong>?
+            </p>
+            <p className="modal-info">
+              A data de devolução será registrada como hoje ({new Date().toLocaleDateString("pt-BR")}).
+            </p>
+
+            <div className="modal-actions">
+              <button
+                className="modal-btn modal-btn-cancel"
+                onClick={closeReturnModal}
+                disabled={returning}
+              >
+                Cancelar
+              </button>
+              <button
+                className="modal-btn modal-btn-confirm"
+                onClick={handleReturnBook}
+                disabled={returning}
+              >
+                {returning ? "Processando..." : "Confirmar Devolução"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

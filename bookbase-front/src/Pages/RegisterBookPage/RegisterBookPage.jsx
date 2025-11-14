@@ -85,7 +85,7 @@ function RegisterBookPage() {
         console.log("Resposta do servidor:", data);
 
         setMessageType("success");
-        setMessage("✅ Livro registrado com sucesso!");
+        setMessage("Livro registrado com sucesso!");
 
         setFormData({
           titulo: "",
