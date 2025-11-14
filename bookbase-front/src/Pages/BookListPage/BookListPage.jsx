@@ -209,7 +209,6 @@ function BookListPage() {
                       Exemplares disponíveis: <strong>{book.quantidade_exemplares}</strong>
                     </p>
                     <div className="book-actions">
-                      <button className="btn-update">Atualizar</button>
                       <button
                         className="btn-delete"
                         onClick={() => openDeleteModal(book.id, book.titulo)}

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -27,14 +27,14 @@ class Livro(Base):
     __tablename__ = "livros"
 
     id = Column(Integer, primary_key=True, index=True)
-    titulo = Column(String(200), nullable=False, index=True)
-    autor = Column(String(100), nullable=False)
+    titulo = Column(String(255), nullable=False, index=True)
+    autor = Column(String(255), nullable=False)
     isbn = Column(String(20), unique=True, index=True, nullable=False)
     ano = Column(Integer, nullable=False)
     quantidade_exemplares = Column(Integer, default=1, nullable=False)
     categoria = Column(String(100), nullable=False)
     paginas = Column(Integer, nullable=False)
-    descricao = Column(String(20), nullable=False)
+    descricao = Column(Text, nullable=False)
     capa = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
