@@ -58,7 +58,6 @@ def list_livros(
     limit: int = 10,
     db: Session = Depends(get_db)
 ):
-    """Listar todos os livros"""
     livros = db.query(models.Livro).offset(skip).limit(limit).all()
     total = db.query(models.Livro).count()
 
