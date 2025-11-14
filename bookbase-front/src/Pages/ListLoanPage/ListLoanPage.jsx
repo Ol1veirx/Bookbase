@@ -221,7 +221,6 @@ function ListLoanPage() {
       <main className="main-content">
         <div className="page-header">
           <h1>Lista de Empréstimos</h1>
-          <p>Gerencie e acompanhe todos os empréstimos</p>
         </div>
 
         <div className="loan-list-content">
@@ -301,10 +300,7 @@ function ListLoanPage() {
                         <div>
                           <label>Usuário:</label>
                           <span>
-                            {loan.usuario ?
-                              `${loan.usuario.nome} (${loan.usuario.email})` :
-                              `ID: ${loan.usuario_id}`
-                            }
+                            { loan.usuario_nome }
                           </span>
                         </div>
                       </div>
@@ -353,7 +349,6 @@ function ListLoanPage() {
                       >
                         Registrar Devolução
                       </button>
-                      <button className="btn-extend">Estender Prazo</button>
                     </div>
                   )}
                 </div>
