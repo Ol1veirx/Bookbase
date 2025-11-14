@@ -15,7 +15,8 @@ function Sidebar() {
    const menuItems = [
       { path: '/books', label: 'Livros', icon: <TbBooks /> },
       { path: '/register-book', label: 'Cadastrar Livro', icon: <PiBooksThin /> },
-      { path: '/categories', label: 'Registrar Empréstimo', icon: <TiUserAddOutline /> },
+      { path: '/loan-book', label: 'Registrar Empréstimo', icon: <TiUserAddOutline /> },
+      { path: '/list-loan', label: 'Listar Empréstimos', icon: <TiUserAddOutline /> },
       { path: '/settings', label: 'Configurações', icon: <CiSettings /> }
    ]
 
