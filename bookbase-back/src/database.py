@@ -10,10 +10,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://bookbase_user:bookbase_password@postgres:5432/bookbase"
-)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def wait_for_db():
     max_retries = 30
