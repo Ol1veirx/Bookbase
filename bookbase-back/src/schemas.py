@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, ConfigDict, validator
+from pydantic import BaseModel, EmailStr, ConfigDict, validator, Field
 from datetime import datetime
 from typing import Optional, List
 from enum import Enum
@@ -43,6 +43,20 @@ class Usuario(UsuarioBase):
     id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
+
+class UsuarioPublic(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    nome: str
+    email: EmailStr
+    is_active: bool
+
+class UsuariosPaginados(BaseModel):
+    usuarios: List[UsuarioPublic]
+    total: int
+    skip: int
+    limit: int
 
 class Token(BaseModel):
     access_token: str
@@ -134,14 +148,18 @@ class Emprestimo(EmprestimoBase):
     usuario: Usuario
     livro: Livro
 
-class EmprestimoSimple(EmprestimoBase):
+class EmprestimoSimple(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    usuario_id: int
+    livro_id: int
     data_emprestimo: datetime
+    data_devolucao_prevista: datetime
     data_devolucao_real: Optional[datetime] = None
     status: str
-    created_at: datetime
-    updated_at: Optional[datetime] = None
+
+    usuario_nome: str = Field(..., alias="usuario.nome")
+    livro_titulo: str = Field(..., alias="livro.titulo")
 
     LivrosPaginados.model_rebuild()

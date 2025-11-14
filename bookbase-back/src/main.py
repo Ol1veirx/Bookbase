@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 from database import engine, Base
 import models
-from routers import auth_router, books_router
+from routers import auth_router, books_router, loans_router
 from config import UPLOAD_DIR
 
 Base.metadata.create_all(bind=engine)
@@ -13,7 +13,7 @@ app = FastAPI(title="Bookbase API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,6 +26,7 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 # Rotas
 app.include_router(auth_router)
 app.include_router(books_router)
+app.include_router(loans_router)
 
 @app.get("/")
 def read_root():

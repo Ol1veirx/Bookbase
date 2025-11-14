@@ -103,3 +103,14 @@ def change_password(
     db.commit()
 
     return {"message": "Senha alterada com sucesso"}
+
+@router.get("/users", response_model=list[UsuarioPublic])
+def get_users(
+    skip: int = 0,
+    limit: int = 10,
+    current_user: models.Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    usuarios = db.query(models.Usuario).offset(skip).limit(limit).all()
+
+    return usuarios
