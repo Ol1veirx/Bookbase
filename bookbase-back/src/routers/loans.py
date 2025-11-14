@@ -15,7 +15,6 @@ def create_emprestimo(
     current_user: models.Usuario = Depends(require_bibliotecario),
     db: Session = Depends(get_db)
 ):
-    """Criar novo empréstimo (apenas bibliotecário)"""
 
     livro = db.query(models.Livro).filter(models.Livro.id == emprestimo.livro_id).first()
     if not livro:
@@ -65,7 +64,6 @@ def list_emprestimos(
     current_user: models.Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Listar empréstimos com nomes (usuários veem apenas os seus)"""
 
     query = db.query(
         models.Emprestimo.id,
@@ -112,7 +110,6 @@ def get_emprestimo(
     current_user: models.Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Obter detalhes de um empréstimo"""
 
     emprestimo = db.query(models.Emprestimo).filter(models.Emprestimo.id == emprestimo_id).first()
     if not emprestimo:
@@ -129,7 +126,6 @@ def devolver_livro(
     current_user: models.Usuario = Depends(require_bibliotecario),
     db: Session = Depends(get_db)
 ):
-    """Registrar devolução de livro (apenas bibliotecário)"""
 
     emprestimo = db.query(models.Emprestimo).filter(models.Emprestimo.id == emprestimo_id).first()
     if not emprestimo:
@@ -153,7 +149,6 @@ def update_emprestimo(
     current_user: models.Usuario = Depends(require_bibliotecario),
     db: Session = Depends(get_db)
 ):
-    """Atualizar empréstimo (apenas bibliotecário)"""
 
     emprestimo = db.query(models.Emprestimo).filter(models.Emprestimo.id == emprestimo_id).first()
     if not emprestimo:
@@ -179,7 +174,6 @@ def delete_emprestimo(
     current_user: models.Usuario = Depends(require_bibliotecario),
     db: Session = Depends(get_db)
 ):
-    """Deletar empréstimo (apenas bibliotecário)"""
 
     emprestimo = db.query(models.Emprestimo).filter(models.Emprestimo.id == emprestimo_id).first()
     if not emprestimo:
@@ -196,7 +190,6 @@ def get_emprestimos_usuario(
     current_user: models.Usuario = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Obter empréstimos de um usuário específico"""
 
     if current_user.role != "bibliotecario" and current_user.id != usuario_id:
         raise HTTPException(status_code=403, detail="Sem permissão para ver empréstimos deste usuário")
@@ -212,7 +205,6 @@ def get_emprestimos_atrasados(
     current_user: models.Usuario = Depends(require_bibliotecario),
     db: Session = Depends(get_db)
 ):
-    """Listar empréstimos em atraso (apenas bibliotecário)"""
 
     hoje = datetime.now().date()
 

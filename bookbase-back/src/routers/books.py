@@ -25,7 +25,6 @@ async def create_livro(
     current_user: models.Usuario = Depends(require_bibliotecario),
     db: Session = Depends(get_db)
 ):
-    """Criar novo livro com capa (form-data)"""
 
     db_livro = db.query(models.Livro).filter(models.Livro.isbn == isbn).first()
     if db_livro:
@@ -75,7 +74,6 @@ def get_livro(
     livro_id: int,
     db: Session = Depends(get_db)
 ):
-    """Obter detalhes de um livro"""
     livro = db.query(models.Livro).filter(models.Livro.id == livro_id).first()
     if not livro:
         raise HTTPException(status_code=404, detail="Livro não encontrado")
@@ -126,7 +124,6 @@ def delete_livro(
     current_user: models.Usuario = Depends(require_bibliotecario),
     db: Session = Depends(get_db)
 ):
-    """Deletar livro (apenas bibliotecário)"""
     db_livro = db.query(models.Livro).filter(models.Livro.id == livro_id).first()
     if not db_livro:
         raise HTTPException(status_code=404, detail="Livro não encontrado")
@@ -141,7 +138,6 @@ def delete_livro(
 
 @router.get("/capas/{filename}")
 async def get_capa(filename: str):
-    """Obter imagem da capa do livro"""
     file_path = UPLOAD_DIR / filename
 
     if not file_path.exists():

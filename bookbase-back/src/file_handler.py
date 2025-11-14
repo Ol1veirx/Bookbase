@@ -5,9 +5,6 @@ from fastapi import UploadFile
 from config import UPLOAD_DIR, MAX_FILE_SIZE, allowed_file
 
 async def save_upload_file(upload_file: UploadFile) -> str:
-    """
-    Salva o arquivo de upload e retorna o nome do arquivo
-    """
 
     if not allowed_file(upload_file.filename):
         raise ValueError(f"Tipo de arquivo não permitido: {upload_file.filename}")
@@ -27,9 +24,6 @@ async def save_upload_file(upload_file: UploadFile) -> str:
     return unique_filename
 
 def delete_upload_file(filename: str) -> bool:
-    """
-    Deleta um arquivo de upload
-    """
     if not filename:
         return False
 

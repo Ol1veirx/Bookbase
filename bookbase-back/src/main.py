@@ -30,7 +30,7 @@ app.include_router(loans_router)
 
 @app.get("/")
 def read_root():
-    return {"message": "Bem-vindo à API Bookbase"}
+    return {"message": "essa bomba ta funcionando"}
 
 @app.get("/api/health")
 def health_check():
